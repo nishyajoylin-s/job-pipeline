@@ -1,0 +1,26 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+
+# Rendered digest previews
+output/
+
+# Local SQLite DB
+jobs.db
+# IDE
+.idea/
+
+# Personal notes / drafts
+TODO.md
+
+# AI assistant context (contains personal details)
+CLAUDE.md
+claude.md

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Job digest</title>
+</head>
+<body style="font-family: sans-serif; max-width: 700px; margin: 20px auto;">
+
+<h2>Job digest</h2>
+<p>{{ jobs|length }} new role{{ '' if jobs|length == 1 else 's' }} &middot; {{ generated_at }}</p>
+
+{% if jobs %}
+  {% for job in jobs %}
+  <div style="border-top: 1px solid #ccc; padding: 12px 0;">
+    <div>
+      <strong>[{{ job.total }}]</strong>
+      <strong>{{ job.title }}</strong>
+    </div>
+    <div>{{ job.company }}{% if job.location %} &middot; {{ job.location }}{% endif %} ({{ job.source }})</div>
+
+    {% if job.jd_preview %}
+    <p>{{ job.jd_preview }}</p>
+    {% endif %}
+
+    {# Subtotals — useful while tuning the scorer; rip out once stable. #}
+    <div style="font-family: monospace; font-size: 12px; color: #555;">
+      role {{ job.why.subtotals.role }} &middot;
+      sen {{ job.why.subtotals.seniority }} &middot;
+      stack {{ job.why.subtotals.stack }} &middot;
+      loc {{ job.why.subtotals.location }} &middot;
+      lead {{ job.why.subtotals.leadership }} &middot;
+      lang {{ job.why.subtotals.lang_penalty }}
+    </div>
+
+    <p><a href="{{ job.url }}">View job</a></p>
+  </div>
+  {% endfor %}
+{% else %}
+  <p>No new roles since the last digest.</p>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+[project]
+name = "job-pipeline"
+version = "0.1.0"
+description = "Daily ATS scraping, scoring, and email digest pipeline"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "jinja2>=3.1.6",
+    "lxml>=6.1.0",
+    "pydantic>=2.13.3",
+    "python-dotenv>=1.2.2",
+    "requests>=2.33.1",
+    "resend>=2.29.0",
+]
