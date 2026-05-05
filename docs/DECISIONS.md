@@ -69,3 +69,19 @@ Lightweight ADR format. One record per major call. Each captures the context tha
 **Decision.** Send first, then write `notified_at` in a single `executemany` transaction. A failure to write the flag means a duplicate digest next run.
 
 **Tradeoffs accepted.** Duplicate emails are recoverable. A missed role is not. Picked the recoverable failure mode.
+
+## 9. role=0 filter at rank level, not in scoring
+
+**Context.** Day 2 testing surfaced jobs that scored high despite no role match. A Principal Enterprise Architect at a Munich tech company accumulated 50+ points from seniority, stack, and location alone, putting it ahead of weaker-but-actually-data roles in the digest.
+
+**Decision.** Filter role=0 jobs in `src/rank.py` rather than zeroing them out in the scorer. The scorer continues to compute and return the total. The rank function drops anything with role=0 before sorting.
+
+**Tradeoffs accepted.** Scoring stays pure. Every job gets a number, and the debug CLI output still shows what happened. Filters are policy and live with other policy decisions (junior kill, only_unsent). The CLI rank tool intentionally shows role=0 jobs so the breakdown is visible during tuning. Only the digest path applies the filter.
+
+## 10. Senior-IC bucket beats tech-lead for "Staff Data X" titles
+
+**Context.** Day 2 testing surfaced "Staff Data Scientist" and similar senior-IC titles being captured by `ROLE_LEAD_TECH` via the loose "staff data" pattern. That gave them 30 points (tech-lead tier) when they should have been 20 (senior-IC tier).
+
+**Decision.** Reorder `score_role` so the senior-IC patterns (`ROLE_SENIOR_DATA`) are checked before the tech-lead patterns (`ROLE_LEAD_TECH`). The more specific match wins. Added explicit "staff data scientist", "staff data engineer", "staff data analyst" entries to `ROLE_SENIOR_DATA` so they hit the senior bucket first.
+
+**Tradeoffs accepted.** People-leadership remains the top tier. Senior-IC and tech-lead now have a defined precedence rather than relying on list order. Slight increase in code complexity for an unambiguously correct outcome.

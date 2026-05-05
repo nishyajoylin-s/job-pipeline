@@ -69,3 +69,41 @@ A chronological record of what was built when, what was deferred, and what was l
 - Status column CLI for posting triage (`saved`, `watching`, `dismissed`)
 - GitHub Actions schedule for nightly runs
 - Embedding-based scoring once rules hit obvious limits
+
+## Day 3. Coverage expansion, tests, scorer tuning
+
+**Goal.** Three sub-goals stretched the day rather than the one-focus discipline of Day 2. Add a fifth ATS adapter, lock current scoring behavior with tests, then tune the scorer to fix the false positives surfaced in Day 2.
+
+**Built.**
+
+- Workable adapter (`src/scrapers/workable.py`). Uses the public widget API at `apply.workable.com/api/v1/widget/accounts/<subdomain>`. The endpoint returns listings without JD text, so `jd_text=None` for Workable jobs and stack and leadership scoring stay at 0 for them until per-job fetching is added later
+- pytest dev dependency and a `tests/` directory with 21 test cases covering the scorer (20) and rank-level filter (1). Two cases lock prior known false positives so future tuning has visible signal. Test file uses `pytest.mark.parametrize` for the junior-kill title patterns
+- Scorer tuning to fix three patterns surfaced in Day 2.
+    1. role=0 filter in `src/rank.py` removes non-data leadership roles (e.g. Principal Enterprise Architect) that previously accumulated 50+ points via seniority and stack alone. Filter lives at rank level because filters are policy and policy belongs separate from pure scoring rules
+    2. Senior-IC patterns moved earlier in `score_role` so titles like "Staff Data Scientist" correctly score as IC (20) instead of being captured by the tech-lead bucket (30) via the loose "staff data" pattern. The more specific match wins
+    3. Non-EU location penalty deepened from -12 to -25. A US Head of Data role at full strength previously scored 78 (still inside the top 25) and now lands at 65, reliably below DACH equivalents
+
+**Coverage additions.**
+
+- `gitlab` added to greenhouse (discovered to be on Greenhouse via careers-page source check)
+- `holidu` added to personio (Munich-based travel tech, primary location match)
+- `treatwell` added to workable (verification target with 68 active jobs)
+
+**Outcomes.**
+
+- Top result moved from "Staff Data Analyst, AI Tooling" at Qonto Paris (75) to "(Senior) Team Lead Data Analytics" at Holidu Munich (90). The new top hit is a real Munich senior data leadership posting
+- Three Holidu Munich Senior Data Scientist roles cluster at 66, displacing previous US-based outliers
+- Celonis Principal Enterprise Architect (Munich, role=0, total 64) no longer appears in the digest. The CLI debug output still shows it, which is intentional so the breakdown stays visible during tuning
+
+**Discoveries.**
+
+- The Workable widget endpoint returns 200 even for stub accounts that have no exposed jobs. Eleven candidates that returned 200 in the initial probe yielded zero active jobs across most of them. Status code alone is not a reliable signal for active integration
+- Many DACH companies (e.g. holidu) use Personio rather than Workable. The probe-and-confirm pattern (one curl per ATS endpoint per candidate) is the cheapest way to find which ATS a target company uses
+
+**Deferred to Day 4 and beyond.**
+
+- GitHub Actions schedule for nightly digest runs
+- Workday adapter. Each tenant has its own subdomain and cluster, so the SCRAPERS registry signature would need to change from `name → callable(company)` to `name → callable(company_config)`
+- Per-job JD fetch for Workable so stack and leadership scoring works for those jobs
+- SmartRecruiters and Recruitee adapters
+- Embedding-based semantic scoring once rule-based scoring hits obvious limits

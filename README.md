@@ -12,14 +12,15 @@ If the digest surfaces nothing of interest over time, the ingestion or scoring i
 
 ## What it does today
 
-Numbers as of 2026-05-04.
+Numbers as of 2026-05-05.
 
-- 4 ATS adapters via a shared registry pattern. Greenhouse (dual URL formats), Lever, Ashby, Personio
-- ~30 companies tracked, 4005 jobs in SQLite
-- Rule-based scoring across 6 dimensions, 0 to 100, with a location penalty for non-EU postings
-- Hard filter for below-level roles (junior, intern, working student)
+- 5 ATS adapters via a shared registry pattern. Greenhouse (dual URL formats), Lever, Ashby, Personio, Workable
+- ~33 companies tracked, ~4500 jobs in SQLite
+- Rule-based scoring across 6 dimensions, 0 to 100, with a -25 location penalty for non-EU postings
+- Hard filters for below-level roles (junior, intern, working student) and for role=0 jobs (non-data leadership)
 - Email digest via Resend, only sends roles not previously notified
 - Re-runs are idempotent by construction (hash-based primary key plus INSERT OR IGNORE)
+- pytest suite (21 cases) locks scoring behavior so tuning has visible signal
 
 ## Pipeline
 
@@ -111,10 +112,10 @@ The scorer cannot read intent. A "Solutions Engineer" role with "AI" in the titl
 
 Near-term work, ordered roughly.
 
-1. More ATS adapters (Workable first, then SmartRecruiters and Workday)
-2. Scorer tuning to fix false positives on IC roles with leadership-adjacent titles
+1. GitHub Actions schedule for nightly runs
+2. SmartRecruiters and Workday adapters (Workable shipped Day 3)
 3. Status column CLI to triage postings (`saved`, `watching`, `dismissed`)
-4. GitHub Actions schedule for nightly runs
+4. Per-job JD fetch for Workable so stack and leadership scoring works for those jobs
 5. Embedding-based semantic scoring once rules hit obvious limits
 6. Migration to Supabase Postgres if the storage layer needs a second reader
 

@@ -15,6 +15,7 @@ This document describes how the pipeline is laid out, what each module owns, how
 | `src/rank.py` | Query DB, score each row, return top N as enriched dicts. |
 | `src/digest.py` | Render template, send via Resend, mark `notified_at`. |
 | `templates/digest.html` | Jinja2 template. Dumb. All formatting decisions live in Python. |
+|`tests/` | pytest suite. `tests/test_score.py` covers the scorer (20 cases). `tests/test_rank.py` covers the rank-level role=0 filter. |
 
 ## Data flow
 

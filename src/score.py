@@ -40,6 +40,10 @@ ROLE_SENIOR_DATA = [
     "senior data scientist", "senior data analyst",
     "senior analytics", "senior machine learning",
     "sr. data", "sr data",
+    # Staff IC roles. Despite the "staff" prefix matching ROLE_LEAD_TECH,
+    # these are senior individual contributor roles, not tech leadership.
+    "staff data scientist", "staff data engineer", "staff data analyst",
+    "staff machine learning",
 ]
 ROLE_IC_DATA = [
     "data engineer", "analytics engineer", "data scientist",
@@ -167,13 +171,16 @@ def score_role(title: str) -> tuple[int, str]:
     hits = _word_hits(t, ROLE_LEAD_PEOPLE)
     if hits:
         return 40, f"people-lead role: {hits}"
-    # Technical lead / staff / principal IC — valid fallback, lower weight
-    hits = _word_hits(t, ROLE_LEAD_TECH)
-    if hits:
-        return 30, f"tech-lead role: {hits}"
-    hits = _word_hits(t, ROLE_SENIOR_DATA)
-    if hits:
-        return 20, f"senior data role: {hits}"
+    # Senior-IC patterns checked BEFORE tech-lead. Some senior-IC titles
+    # (e.g. "Staff Data Scientist") match ROLE_LEAD_TECH via "staff data"
+    # but are individual contributors, not leadership. More specific match wins.
+    senior_hits = _word_hits(t, ROLE_SENIOR_DATA)
+    if senior_hits:
+        return 20, f"senior data role: {senior_hits}"
+     # Technical lead / staff / principal IC. Fallback bucket.
+    tech_hits = _word_hits(t, ROLE_LEAD_TECH)
+    if tech_hits:
+        return 30, f"tech-lead role: {tech_hits}"
     hits = _word_hits(t, ROLE_IC_DATA)
     if hits:
         base = 10
@@ -226,7 +233,7 @@ def score_location(loc: str | None) -> tuple[int, str]:
     # "US" as a substring would falsely match in "Customer Success" etc.
     penalty_hits = _hits(loc_l, LOC_PENALTY_SUBSTRING) + _word_hits(loc_l, LOC_PENALTY_WORD)
     if penalty_hits:
-            return -12, f"NON-EU penalty: {loc}"
+            return -25, f"NON-EU penalty: {loc}"
     if _hits(loc_l, LOC_REMOTE_ANY):
         return 3, f"generic remote: {loc}"
     return 0, f"other: {loc}"
