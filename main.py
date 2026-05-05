@@ -10,7 +10,7 @@ from src.scrapers import SCRAPERS
 TARGETS: dict[str, list[str]] = {
     "greenhouse": [
         "stripe", "airbnb", "anthropic", "figma", "databricks",
-        "celonis", "sumup", "contentful", "n26",
+        "celonis", "sumup", "contentful", "n26", "gitlab",
     ],
     "lever": [
         "spotify", "qonto", "contentsquare",
@@ -34,6 +34,10 @@ TARGETS: dict[str, list[str]] = {
         "langdock",
         "solarisbank",
         "tier",
+        "holidu",
+    ],
+    "workable": [
+        "treatwell",
     ],
 }
 
