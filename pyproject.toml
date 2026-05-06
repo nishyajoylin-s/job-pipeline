@@ -12,3 +12,8 @@ dependencies = [
     "requests>=2.33.1",
     "resend>=2.29.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
