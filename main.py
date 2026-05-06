@@ -42,6 +42,7 @@ TARGETS: dict[str, list[str]] = {
     "smartrecruiters": [
         "continental",
         "visa",
+        "boschgroup",
 
     ],
 }
