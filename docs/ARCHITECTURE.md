@@ -81,3 +81,5 @@ The `status` column is reserved for posting triage (saved, watching, dismissed).
 - Template kept dumb. All formatting (HTML stripping, truncation, preview generation) happens in Python where it can be tested.
 - No private-helper imports across modules. `_strip_html` is duplicated between `score.py` and `digest.py` because importing a private from another module is worse than three lines of duplication.
 - Idempotency is structural rather than checked. The hash PK plus `INSERT OR IGNORE` makes re-runs safe by construction, not by guarded application code.
+- Listing-only adapters (Workable, SmartRecruiters) return `jd_text=None`. Per-job JD fetch is deferred. The stack and leadership score dimensions silently stay at 0 for those sources. Documented in adapter headers and as ADR 11.
+- Pagination is per-adapter responsibility. Most APIs return everything in a single call, but SmartRecruiters at enterprise scale (Continental at 1210 jobs) needs offset-based pagination. The adapter's `fetch()` returns the complete list so callers never deal with pagination directly.

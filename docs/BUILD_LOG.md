@@ -107,3 +107,39 @@ A chronological record of what was built when, what was deferred, and what was l
 - Per-job JD fetch for Workable so stack and leadership scoring works for those jobs
 - SmartRecruiters and Recruitee adapters
 - Embedding-based semantic scoring once rule-based scoring hits obvious limits
+
+## Day 4. SmartRecruiters adapter, ATS-migration cleanup
+
+**Goal.** Add a sixth ATS adapter covering large DACH enterprise. Fix Personio TARGETS that returned 404 by routing companies to their actual current ATS.
+
+**Built.**
+
+- SmartRecruiters adapter (`src/scrapers/smartrecruiters.py`). Public postings API at `api.smartrecruiters.com/v1/companies/<id>/postings`. Pagination via offset and limit, capped at 100 per page. Continental needed 13 pages for ~1210 jobs, which is the first time pagination has been required by any adapter
+- Same listing-only constraint as Workable. `jd_text=None` for SmartRecruiters jobs, so stack and leadership scoring stays at 0 until per-job fetching is added
+
+**Coverage additions and migrations.**
+
+- `continental` added to smartrecruiters (~1210 jobs, German automotive tech)
+- `visa` added to smartrecruiters (~39 jobs, fintech)
+- `raisin` re-routed from personio (404) to greenhouse where they actually live now
+- `usercentrics` re-routed from personio (404) to workable (21 active jobs)
+- `workmotion` re-routed from personio (404) to workable (17 active jobs)
+
+**Outcomes.**
+
+- DB grew from 4786 to 6215 jobs (1429 net new across the day)
+- Top 25 unchanged. Holidu Munich Team Lead Data Analytics at 90 still leads. The new SmartRecruiters jobs did not displace it because Continental's roles skew US/manufacturing or carry no JD content for stack scoring
+
+**Discoveries.**
+
+- SmartRecruiters returns 200 for stub accounts with zero active jobs, same pattern as Workable. Of 17 DACH enterprise candidates probed, only Continental and Visa had active boards. Bosch, Henkel, Allianz and others returned 0 and likely use slug variants
+- Several Personio TARGETS had migrated off the platform between Day 3 and Day 4 runs. The probe-and-confirm pattern (one curl per ATS endpoint) is the cheapest way to detect this. forto, enpal, and tier moved to custom careers pages and are deferred until a generic HTML scraper exists
+
+**Deferred to Day 5 and beyond.**
+
+- Per-job JD fetch for Workable and SmartRecruiters. Highest-leverage improvement now that JD-text is the binding constraint on score quality
+- Variant hunt for SmartRecruiters stub companies (bosch-careers, henkel-group, allianz-careers)
+- Workday adapter (requires SCRAPERS registry signature change)
+- Custom-page adapters for forto, enpal, tier
+- Status column CLI
+- Embedding-based scoring as 7th dimension

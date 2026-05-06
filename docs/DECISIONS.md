@@ -85,3 +85,11 @@ Lightweight ADR format. One record per major call. Each captures the context tha
 **Decision.** Reorder `score_role` so the senior-IC patterns (`ROLE_SENIOR_DATA`) are checked before the tech-lead patterns (`ROLE_LEAD_TECH`). The more specific match wins. Added explicit "staff data scientist", "staff data engineer", "staff data analyst" entries to `ROLE_SENIOR_DATA` so they hit the senior bucket first.
 
 **Tradeoffs accepted.** People-leadership remains the top tier. Senior-IC and tech-lead now have a defined precedence rather than relying on list order. Slight increase in code complexity for an unambiguously correct outcome.
+
+## 11. Listing-only adapters defer JD fetch
+
+**Context.** Workable's widget API and SmartRecruiters' postings API return listing metadata only. JD text requires a per-job fetch. For an adapter with N jobs, this means N+1 HTTP calls per company per run.
+
+**Decision.** Both adapters return `NormalizedJob` with `jd_text=None`. The contract still validates (location, title, URL all present) but the scoring impact is explicit. Stack and leadership dimensions stay at 0 for these sources.
+
+**Tradeoffs accepted.** Single-page fetch is fast (one HTTP call per company, plus pagination for SmartRecruiters Continental). The cost is degraded scoring for listing-only sources. A Continental Berlin data role scores ~35 today where it should score 60+ with JD content. The decision is reversible. Per-job fetch is a one-line change in each adapter when the score quality complaint becomes loud enough. We accept the under-scoring as a known limitation rather than slow down every run with N+1 calls.

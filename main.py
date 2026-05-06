@@ -11,6 +11,7 @@ TARGETS: dict[str, list[str]] = {
     "greenhouse": [
         "stripe", "airbnb", "anthropic", "figma", "databricks",
         "celonis", "sumup", "contentful", "n26", "gitlab",
+        "raisin",
     ],
     "lever": [
         "spotify", "qonto", "contentsquare",
@@ -23,12 +24,9 @@ TARGETS: dict[str, list[str]] = {
         "1komma5grad",
         "cosuno",
         "moss",
-        "raisin",
         "forto",
         "urlaubsguru",
         "konux",
-        "workmotion",
-        "usercentrics",
         "enpal",
         "alasco",
         "langdock",
@@ -38,6 +36,13 @@ TARGETS: dict[str, list[str]] = {
     ],
     "workable": [
         "treatwell",
+        "usercentrics",
+        "workmotion",
+    ],
+    "smartrecruiters": [
+        "continental",
+        "visa",
+
     ],
 }
 
